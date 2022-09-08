@@ -53,7 +53,7 @@ export function getTypeInfo(schema) {
 
   const info = {
     type: dataType,
-    format: schema.format || '',
+    format: schema.format || schema.items?.format || '',
     pattern: (schema.pattern && !schema.enum) ? schema.pattern : '',
     readOrWriteOnly: (schema.readOnly ? '🆁' : schema.writeOnly ? '🆆' : ''),
     deprecated: schema.deprecated ? '❌' : '',
@@ -111,12 +111,8 @@ export function getTypeInfo(schema) {
     }
   }
 
-  if (dataType.match(/integer|number/g) && schema.format) {
-    info.type = schema.format;
-  }
-
   info.constrain = constrain;
-  info.html = `${info.type}~|~${info.readOrWriteOnly}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}~|~${schema.title || ''}~|~${info.deprecated ? 'deprecated' : ''}`;
+  info.html = `${info.type}~|~${info.format}~|~${info.readOrWriteOnly}~|~${info.constrain}~|~${info.default}~|~${info.allowedValues}~|~${info.pattern}~|~${info.description}~|~${schema.title || ''}~|~${info.deprecated ? 'deprecated' : ''}`;
   return info;
 }
 

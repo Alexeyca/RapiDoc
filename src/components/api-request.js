@@ -1169,16 +1169,8 @@ export default class ApiRequest extends LitElement {
     const pathParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='path']")];
     const queryParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='query']")];
     const queryParamObjTypeEls = [...requestPanelEl.querySelectorAll("[data-ptype='query-object']")];
-<<<<<<< HEAD
-    fetchUrl = this.path;
-=======
-    const headerParamEls = [...requestPanelEl.querySelectorAll("[data-ptype='header']")];
-    const requestBodyContainerEl = requestPanelEl.querySelector('.request-body-container');
     fetchUrl = this.path.replaceAll(' ', '');
-    const fetchOptions = {
-      method: this.method.toUpperCase(),
-    };
->>>>>>> 9c12648 (added support int32 and int64 to schema and support paths with spaces correctly)
+
     // Generate URL using Path Params
     pathParamEls.map((el) => {
       fetchUrl = fetchUrl.replace(`{${el.dataset.pname}}`, encodeURIComponent(el.value));
