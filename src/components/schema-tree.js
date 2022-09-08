@@ -33,6 +33,10 @@ export default class SchemaTree extends LitElement {
       BorderStyles,
       css`
       .tree {
+        min-height: 30px;
+        background: rgb(51, 51, 51);
+        padding: 12px;
+        color: white;
         font-size:var(--font-size-small);
         text-align: left;
         direction: ltr;
@@ -78,7 +82,8 @@ export default class SchemaTree extends LitElement {
       }
       .close-bracket{
         display:inline-block;
-        font-family: var(--font-mono);
+        background-color:var(--hover-color);
+        border: 1px solid var(--border-color);
       }
       .tr.collapsed + .inside-bracket,
       .tr.collapsed + .inside-bracket + .close-bracket{
@@ -86,7 +91,7 @@ export default class SchemaTree extends LitElement {
       }
       .inside-bracket.object,
       .inside-bracket.array {
-        border-left: 1px dotted var(--border-color);
+        border-left: 1px dotted;
       }
       .inside-bracket.xxx-of {
         padding:5px 0px;
@@ -101,31 +106,25 @@ export default class SchemaTree extends LitElement {
   /* eslint-disable indent */
   render() {
     return html`
-      <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
+      <div class="tree">
         <div class="toolbar">
-          <div class="toolbar-item schema-root-type ${this.data?.['::type'] || ''} "> ${this.data?.['::type'] || ''} </div>
-          ${this.allowSchemaDescriptionExpandToggle === 'true'
-            ? html`
-              <div style="flex:1"></div>
-              <div part="schema-toolbar-item schema-multiline-toggle" class='toolbar-item' @click='${() => { this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true'); }}'> 
-                ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
-              </div>
-            `
-            : ''
-          }
+          ${this.data && this.data['::description'] ? html`<span class='m-markdown' style="margin-block-start: 0"> ${unsafeHTML(marked(this.data['::description'] || ''))}</span>` : html`<div>&nbsp;</div>`}
+          <div class="toolbar-item" @click='${() => this.toggleSchemaDescription()}'> 
+            ${this.schemaDescriptionExpanded ? 'Collapse descriptions' : 'Expand descriptions'}
+          </div>
         </div>
         <span part="schema-description" class='m-markdown'> ${unsafeHTML(marked(this.data?.['::description'] || ''))}</span>
         ${this.data
-          ? html`
-            ${this.generateTree(
-              this.data['::type'] === 'array' ? this.data['::props'] : this.data,
-              this.data['::type'],
-              this.data['::array-type'] || '',
-            )}`
+          ? html`${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'])}`
           : html`<span class='mono-font' style='color:var(--red)'> Schema not found </span>`
         }
       </div>  
     `;
+  }
+
+  toggleSchemaDescription() {
+    this.schemaDescriptionExpanded = !this.schemaDescriptionExpanded;
+    this.requestUpdate();
   }
 
   generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '') {
@@ -177,8 +176,8 @@ export default class SchemaTree extends LitElement {
       keyLabel = key;
     }
 
-    const leftPadding = 12;
-    const minFieldColWidth = 400 - (indentLevel * leftPadding);
+    const leftPadding = 16;
+    const minFieldColWidth = 250 - (indentLevel * leftPadding);
     let openBracket = '';
     let closeBracket = '';
     const newSchemaLevel = data['::type']?.startsWith('xxx-of') ? schemaLevel : (schemaLevel + 1);
@@ -280,7 +279,7 @@ export default class SchemaTree extends LitElement {
 
     // For Primitive types and array of Primitives
     // eslint-disable-next-line no-unused-vars
-    const [type, primitiveReadOrWrite, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] = data.split('~|~');
+    const [type, format, primitiveReadOrWrite, constraint, defaultValue, allowedValues, pattern, schemaDescription, schemaTitle, deprecated] = data.split('~|~');
     if (primitiveReadOrWrite === '🆁' && this.schemaHideReadOnly === 'true') {
       return;
     }
@@ -306,6 +305,7 @@ export default class SchemaTree extends LitElement {
         finalReadWriteText = '🆆';
         finalReadWriteTip = 'Write-Only';
       }
+    const finalTypeText = `${format || type} ${finalReadWriteText}`.trim();
 
     return html`
       <div class = "tr primitive" title="${deprecated ? 'Deprecated' : ''}">
@@ -317,10 +317,7 @@ export default class SchemaTree extends LitElement {
               ? html`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>`
               : html`<span class="key-label">${keyLabel}:</span>`
           }
-          <span class="${dataTypeCss}" title="${finalReadWriteTip}"> 
-            ${dataType === 'array' ? `[${type}]` : `${type}`}
-            ${finalReadWriteText}
-          </span>
+          <span>${dataType === 'array' ? '[' : ''}<span class="${dataTypeCss}" title="${finalReadWriteTip}">${finalTypeText}</span>${dataType === 'array' ? ']' : ''}</span>
         </div>
         <div class='td key-descr'>
           ${dataType === 'array' ? html`<span class="m-markdown-small">${unsafeHTML(marked(description))}</span>` : ''}

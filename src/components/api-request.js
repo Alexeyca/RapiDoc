@@ -849,7 +849,9 @@ export default class ApiRequest extends LitElement {
             <div class="param-name ${fieldSchema.deprecated ? 'deprecated' : ''}">
               ${fieldName}${(schema.required?.includes(fieldName) || fieldSchema.required) ? html`<span style='color:var(--red);'>*</span>` : ''}
             </div>
-            <div class="param-type">${paramSchema.type}</div>
+            <div class="param-type">
+            ${paramSchema.type === 'array' ? html`[<span>${paramSchema.format || paramSchema.type}</span>]` : `${paramSchema.format || paramSchema.type}`}
+            </div>
           </td>  
           <td 
             style="${fieldType === 'object' ? 'width:100%; padding:0;' : this.allowTry === 'true' ? '' : 'display:none;'} min-width:100px;" 
@@ -878,10 +880,10 @@ export default class ApiRequest extends LitElement {
                     style = "width:100%" 
                     data-ptype = "${mimeType.includes('form-urlencode') ? 'form-urlencode' : 'form-data'}"
                     data-pname = "${fieldName}"
-                    data-example = "${Array.isArray(fieldExamples) ? fieldExamples.join('~|~') : fieldExamples}"
+                    data-example = "${Array.isArray(fieldExamples) ? fieldExamples.join('~|~') : ''}"
                     data-array = "true"
                     placeholder = "add-multiple &#x21a9;"
-                    .value = "${Array.isArray(fieldExamples) ? Array.isArray(fieldExamples[0]) ? fieldExamples[0] : [fieldExamples[0]] : [fieldExamples]}"
+                    .value = "${Array.isArray(fieldExamples) ? Array.isArray(fieldExamples[0]) ? fieldExamples[0] : [fieldExamples[0]] : ''}"
                   >
                   </tag-input>
                 `

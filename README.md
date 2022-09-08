@@ -11,7 +11,17 @@
     <a href="https://www.webcomponents.org/element/rapidoc" alt="published on webcomponents.org">
         <img src="https://img.shields.io/badge/webcomponents.org-rapidoc-blue.svg?style=social"/>
     </a>
-</p>        
+</p> 
+
+# This fork will give you additional features
+- Reusing same path multiple times.
+  - As you know, OpenAPI 3.0 do not support reuse same path. With our fork, you can add spaces by the end of your paths to split them. And we will remove this extra spaces before send request.
+  for example.
+    "/login"
+    "/login "
+    "/login  "
+- Arrays now present as [type of array]
+- Long now present as int32/int64
 
 # RapiDoc
 Custom Element for Open-API spec viewing
